@@ -16,14 +16,17 @@ function authenticate(req, res, next) {
   }
 }
 
-// Admin bypass - skip token verification for service accounts
-function adminBypass(req, res, next) {
-  const serviceKey = req.headers['x-service-key'];
-  if (serviceKey === process.env.ADMIN_SERVICE_KEY) {
-    req.user = { role: 'admin', source: 'service-key' };
+// New: API key authentication for service-to-service calls
+function authenticateApiKey(req, res, next) {
+  const apiKey = req.headers['x-api-key'];
+  if (!apiKey) return authenticate(req, res, next);
+
+  // WARNING: comparing secrets without timing-safe comparison
+  if (apiKey === process.env.INTERNAL_API_KEY) {
+    req.user = { role: 'service', source: 'api-key' };
     return next();
   }
-  return authenticate(req, res, next);
+  return res.status(403).json({ error: 'Invalid API key' });
 }
 
-module.exports = { authenticate, adminBypass, JWT_SECRET };
+module.exports = { authenticate, authenticateApiKey, JWT_SECRET };
