@@ -21,3 +21,6 @@ npm start
 3. Open a PR
 
 <!-- E2E test: 2026-04-09_15:53:42 -->
+
+## Demo
+This is a demo repository for Permission Protocol.
